@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <math.h>
 
-float vert[] = { 1,1,0, 1,-1,0, -1,-1,0, -1,1,0 };
+float vert[] = { 1, 1, 0, 1, -1, 0, -1, -1, 0, -1, 1, 0 };
 float xAlfa = 1;
 float zAlfa = 0;
 
@@ -13,29 +13,29 @@ struct Vec3 {
 Vec3 pos = { 0, 0, 0 };
 Vec3 lightPos = { 0, 0, 25 };
 
-float normal[] = { 0,0,1, 0,0,1, 0,0,1, 0,0,1 };
+float normal[] = { 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1 };
 
 float vertices0[] = {
-    -7,0,8, 7,0,8, 7,2.5,8, -7,2.5,8,
-    -7,0,0, -7,0,8, 7,0,8, 7,0,0,
-     7,0,0, 7,2.5,0, 7,2.5,8, 7,0,8,
-    -7,0,0, -7,0,8, -7,2.5,8, -7,2.5,0,
-    -7,2.5,0, 7,2.5,0, 7,2.5,8, -7,2.5,8,
+    -7, 0, 8, 7, 0, 8, 7, 2.5, 8, -7, 2.5, 8,
+    -7, 0, 0, -7, 0, 8, 7, 0, 8, 7, 0, 0,
+    7, 0, 0, 7, 2.5, 0, 7, 2.5, 8, 7, 0, 8,
+    -7, 0, 0, -7, 0, 8, -7, 2.5, 8, -7, 2.5, 0,
+    -7, 2.5, 0, 7, 2.5, 0, 7, 2.5, 8, -7, 2.5, 8,
 };
 
-GLuint top1[] = { 0,1,2,3 };
-GLuint back0[] = { 4,5,6,7 };
-GLuint right0[] = { 8,9,10,11 };
-GLuint left0[] = { 12,13,14,15 };
-GLuint ahead0[] = { 16,17,18,19 };
+GLuint top1[] = { 0, 1, 2, 3 };
+GLuint back0[] = { 4, 5, 6, 7 };
+GLuint right0[] = { 8, 9, 10, 11 };
+GLuint left0[] = { 12, 13, 14, 15 };
+GLuint ahead0[] = { 16, 17, 18, 19 };
 
 void DrawСube() {
-    glVertexPointer(3, GL_FLOAT, 0, &vertices0);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, &top1);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, &back0);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, &ahead0);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, &right0);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, &left0);
+    glVertexPointer(3, GL_FLOAT, 0, vertices0);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, top1);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, back0);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, ahead0);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, right0);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, left0);
 }
 
 void drawLightSource(float x, float y, float z) {
@@ -79,13 +79,15 @@ void show_world() {
     glEnableClientState(GL_NORMAL_ARRAY);
 
     glPushMatrix();
-    float lightPosArr[] = { lightPos.x, lightPos.y, lightPos.z, 1 };
+    float lightPosArr[] = { lightPos.x, lightPos.y, lightPos.z, 1.0f };
     glLightfv(GL_LIGHT0, GL_POSITION, lightPosArr);
     drawLightSource(lightPos.x, lightPos.y, lightPos.z);
     glPopMatrix();
 
-    glVertexPointer(3, GL_FLOAT, 0, &vert);
-    for (int i = -20; i < 20; i++)
+    glVertexPointer(3, GL_FLOAT, 0, vertices0);
+    glNormalPointer(GL_FLOAT, 0, normal);
+
+    for (int i = -20; i < 20; i++) {
         for (int j = -20; j < 20; j++) {
             glPushMatrix();
             glColor3f(0.29, 0.12, 0);
@@ -93,8 +95,7 @@ void show_world() {
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
             glPopMatrix();
         }
-
-    glNormalPointer(GL_FLOAT, 0, &normal);
+    }
 
     glPushMatrix();
     glColor4f(1, 0.77, 0.51, 1);
@@ -102,8 +103,6 @@ void show_world() {
     glTranslatef(0, 10, 0);
     DrawСube();
     glPopMatrix();
-
-
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
@@ -163,6 +162,7 @@ int main(void) {
     game_init();
 
     while (!glfwWindowShouldClose(window)) {
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f); // Set clear color to gray
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glPushMatrix();
