@@ -11,11 +11,11 @@ struct Vec3 {
 };
 
 Vec3 pos = { 0, 0, 0 };
-Vec3 lightPos = { 0, 0, 25 };
+Vec3 lightPos = { 0, 0, 35 };
 
 float normal[] = { 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1 };
 
-float vertices0[] = {
+float verc_cube[] = {
     -7, 0, 8, 7, 0, 8, 7, 2.5, 8, -7, 2.5, 8,
     -7, 0, 0, -7, 0, 8, 7, 0, 8, 7, 0, 0,
     7, 0, 0, 7, 2.5, 0, 7, 2.5, 8, 7, 0, 8,
@@ -29,8 +29,40 @@ GLuint right0[] = { 8, 9, 10, 11 };
 GLuint left0[] = { 12, 13, 14, 15 };
 GLuint ahead0[] = { 16, 17, 18, 19 };
 
+
+float verc_trap[] = {
+    -5.0, 0.0, 5.0,
+     5.0, 0.0, 5.0,
+     3.0, 0.0, -5.0,
+    -3.0, 0.0, -5.0,
+
+    -5.0, 3.0, 5.0,
+     5.0, 3.0, 5.0,
+     3.0, 3.0, -5.0,
+    -3.0, 3.0, -5.0
+};
+
+
+GLuint trap_bottom[] = {0, 1, 2, 3};
+GLuint trap_top[] = {4, 5, 6, 7};
+GLuint trap_front[] = {0, 1, 5, 4};
+GLuint trap_back[] = {2, 3, 7, 6};
+GLuint trap_left[] = {0, 3, 7, 4};
+GLuint trap_right[] = {1, 2, 6, 5};
+
+void DrawTrapezoid() {
+    glVertexPointer(3, GL_FLOAT, 0, verc_trap);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, trap_bottom);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, trap_top);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, trap_front);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, trap_back);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, trap_left);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, trap_right);
+}
+
+
 void DrawСube() {
-    glVertexPointer(3, GL_FLOAT, 0, vertices0);
+    glVertexPointer(3, GL_FLOAT, 0, verc_cube);
     glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, top1);
     glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, back0);
     glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, ahead0);
@@ -84,13 +116,13 @@ void show_world() {
     drawLightSource(lightPos.x, lightPos.y, lightPos.z);
     glPopMatrix();
 
-    glVertexPointer(3, GL_FLOAT, 0, vertices0);
+    glVertexPointer(3, GL_FLOAT, 0, vert);
     glNormalPointer(GL_FLOAT, 0, normal);
 
     for (int i = -20; i < 20; i++) {
         for (int j = -20; j < 20; j++) {
             glPushMatrix();
-            glColor3f(0.29, 0.12, 0);
+            glColor3f(0.16, 0.08, 0);
             glTranslatef(i * 2, j * 2, 0);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
             glPopMatrix();
@@ -100,8 +132,38 @@ void show_world() {
     glPushMatrix();
     glColor4f(1, 0.77, 0.51, 1);
     glScalef(2, 3, 2);
-    glTranslatef(0, 10, 0);
+    glTranslatef(0, 7, 0);
     DrawСube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor4f(1, 0.77, 0.51, 1);
+    glScalef(3.8, 1.5, 2);
+    glRotatef(90, 0, 0, 1);
+    glTranslatef(17, 3.67, 0);
+    DrawСube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor4f(1, 0.77, 0.51, 1);
+    glScalef(3.8, 1.5, 2);
+    glRotatef(90, 0, 0, 1);
+    glTranslatef(17, -6.17, 0);
+    DrawСube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor4f(1, 0.48, 0, 1);
+    glScalef(0.5, 2.35, 0.58);
+    glTranslatef(1.8, 6.8, 0);
+    DrawСube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.9, 10.0, 0.0);
+    glScalef(1.6, 1.2, 1.55);
+    glRotatef(90, 1, 0, 0);
+    DrawTrapezoid();
     glPopMatrix();
 
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -139,7 +201,7 @@ int main(void) {
     GLFWwindow* window;
     if (!glfwInit()) return -1;
 
-    window = glfwCreateWindow(1200, 1200, "52 bratuha", NULL, NULL);
+    window = glfwCreateWindow(1000, 1000, "52 bratuha", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;
@@ -162,7 +224,6 @@ int main(void) {
     game_init();
 
     while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.2f, 0.2f, 0.2f, 1.0f); // Set clear color to gray
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glPushMatrix();
