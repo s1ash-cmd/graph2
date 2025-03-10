@@ -1,125 +1,113 @@
 #include <GLFW/glfw3.h>
 #include <Windows.h>
 #include <math.h>
-#include <stdio.h>
+
+float vert[] = { 1,1,0, 1,-1,0, -1,-1,0, -1,1,0 };
+float xAlfa = 1;
+float zAlfa = 0;
 
 struct Vec3 {
     float x, y, z;
 };
 
 Vec3 pos = { 0, 0, 0 };
+Vec3 lightPos = { 0, 0, 25 };
 
-float vert[] = { 1, 1, 0, 1, -1, 0, -1, -1, 0, -1, 1, 0 };
-float xAlfa = 1;
-float zAlfa = 0;
+float normal[] = { 0,0,1, 0,0,1, 0,0,1, 0,0,1 };
 
-float theta = 0;
+float vertices0[] = {
+    -7,0,8, 7,0,8, 7,2.5,8, -7,2.5,8,
+    -7,0,0, -7,0,8, 7,0,8, 7,0,0,
+     7,0,0, 7,2.5,0, 7,2.5,8, 7,0,8,
+    -7,0,0, -7,0,8, -7,2.5,8, -7,2.5,0,
+    -7,2.5,0, 7,2.5,0, 7,2.5,8, -7,2.5,8,
+};
 
-void draw_parallelepiped(float width, float depth, float height, float r, float g, float b, float a) {
-    glColor4f(r, g, b, a);
+GLuint top1[] = { 0,1,2,3 };
+GLuint back0[] = { 4,5,6,7 };
+GLuint right0[] = { 8,9,10,11 };
+GLuint left0[] = { 12,13,14,15 };
+GLuint ahead0[] = { 16,17,18,19 };
 
-    glBegin(GL_QUADS);
-
-    glVertex3f(0, 0, height);
-    glVertex3f(width, 0, height);
-    glVertex3f(width, depth, height);
-    glVertex3f(0, depth, height);
-
-    glVertex3f(0, 0, 0);
-    glVertex3f(0, depth, 0);
-    glVertex3f(width, depth, 0);
-    glVertex3f(width, 0, 0);
-
-    glVertex3f(0, 0, 0);
-    glVertex3f(0, 0, height);
-    glVertex3f(0, depth, height);
-    glVertex3f(0, depth, 0);
-
-    glVertex3f(width, 0, 0);
-    glVertex3f(width, depth, 0);
-    glVertex3f(width, depth, height);
-    glVertex3f(width, 0, height);
-
-    glVertex3f(0, depth, 0);
-    glVertex3f(0, depth, height);
-    glVertex3f(width, depth, height);
-    glVertex3f(width, depth, 0);
-
-    glVertex3f(0, 0, 0);
-    glVertex3f(width, 0, 0);
-    glVertex3f(width, 0, height);
-    glVertex3f(0, 0, height);
-
-    glEnd();
+void DrawСube() {
+    glVertexPointer(3, GL_FLOAT, 0, &vertices0);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, &top1);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, &back0);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, &ahead0);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, &right0);
+    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, &left0);
 }
 
+void drawLightSource(float x, float y, float z) {
+    glPushMatrix();
+    glTranslatef(x, y, z);
+    glColor3f(1, 0.78, 0);
+    glBegin(GL_QUADS);
+    glVertex3f(-0.2, -0.2, 0);
+    glVertex3f(0.2, -0.2, 0);
+    glVertex3f(0.2, 0.2, 0);
+    glVertex3f(-0.2, 0.2, 0);
+    glEnd();
+    glPopMatrix();
+}
 
 void game_init() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.1);
 
-    glEnable(GL_DEPTH_TEST);
-
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT1);
-    glEnable(GL_COLOR_MATERIAL);
-
-    float light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-    float light_position[] = { 1.0, 1.0, 3.0, 0.0 };
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
-    glLightfv(GL_LIGHT1, GL_POSITION, light_position);
+    float diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+    float specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    float ambient[] = { 0.2, 0.2, 0.2, 1.0 };
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 }
 
+void move_light() {
+    if (GetKeyState('U') < 0) lightPos.z += 0.1;
+    if (GetKeyState('O') < 0) lightPos.z -= 0.1;
+    if (GetKeyState('J') < 0) lightPos.x -= 0.1;
+    if (GetKeyState('L') < 0) lightPos.x += 0.1;
+    if (GetKeyState('I') < 0) lightPos.y += 0.1;
+    if (GetKeyState('K') < 0) lightPos.y -= 0.1;
+}
 
 void show_world() {
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
 
-    glVertexPointer(3, GL_FLOAT, 0, vert);
+    glPushMatrix();
+    float lightPosArr[] = { lightPos.x, lightPos.y, lightPos.z, 1 };
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosArr);
+    drawLightSource(lightPos.x, lightPos.y, lightPos.z);
+    glPopMatrix();
 
-    float normal_grid[] = { 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1 };
-    glNormalPointer(GL_FLOAT, 0, normal_grid);
-
-    for (int i = -10; i < 10; i++) {
-        for (int j = -10; j < 10; j++) {
+    glVertexPointer(3, GL_FLOAT, 0, &vert);
+    for (int i = -20; i < 20; i++)
+        for (int j = -20; j < 20; j++) {
             glPushMatrix();
-            glColor3f(0.5, 0.5, 0.5);
+            glColor3f(0.29, 0.12, 0);
             glTranslatef(i * 2, j * 2, 0);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
             glPopMatrix();
         }
-    }
+
+    glNormalPointer(GL_FLOAT, 0, &normal);
 
     glPushMatrix();
-    glTranslatef(-5, 0, 0);
-    draw_parallelepiped(10, 2, 4, 0.89, 0.867, 0.725, 1);
+    glColor4f(1, 0.77, 0.51, 1);
+    glScalef(2, 3, 2);
+    glTranslatef(0, 10, 0);
+    DrawСube();
     glPopMatrix();
 
-    glPushMatrix();
-    glTranslatef(5, -2.7, 0);
-    glRotatef(90, 0, 0, 1);
-    draw_parallelepiped(7, 2.25, 4, 0.89, 0.867, 0.725, 1);
-    glPopMatrix();
 
-    glPushMatrix();
-    glTranslatef(-5, -2.7, 0);
-    glRotatef(90, 0, 0, 1);
-    draw_parallelepiped(7, 2.25, 4, 0.89, 0.867, 0.725, 1);
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslatef(0, -2.7, 0);
-    glRotatef(90, 0, 0, 1);
-    draw_parallelepiped(3, 2.25, 2, 0.91, 0.678, 0.431, 1);
-    glPopMatrix();
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
 }
-
 
 void move_camera() {
     if (GetKeyState(VK_UP) < 0) xAlfa = ++xAlfa > 180 ? 180 : xAlfa;
@@ -136,9 +124,7 @@ void move_camera() {
 
     if (GetKeyState(VK_SPACE) < 0) pos.z -= 0.1;
     if (GetKeyState(VK_CAPITAL) < 0) pos.z += 0.1;
-
     if (pos.z >= 0) pos.z = -0.5;
-
 
     if (speed != 0) {
         pos.x += sin(ugol) * speed;
@@ -152,21 +138,15 @@ void move_camera() {
 
 int main(void) {
     GLFWwindow* window;
+    if (!glfwInit()) return -1;
 
-    if (!glfwInit()) {
-        return -1;
-    }
-
-    window = glfwCreateWindow(1600, 900, "52 bratuha", NULL, NULL);
+    window = glfwCreateWindow(1200, 1200, "52 bratuha", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;
     }
 
-
-
     glfwMakeContextCurrent(window);
-
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glFrustum(-0.1, 0.1, -0.1, 0.1, 0.2, 1000);
@@ -174,19 +154,25 @@ int main(void) {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_NORMALIZE);
+
     game_init();
 
     while (!glfwWindowShouldClose(window)) {
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glPushMatrix();
         move_camera();
+        move_light();
         show_world();
         glPopMatrix();
 
         glfwSwapBuffers(window);
-        theta += 1;
+        Sleep(1);
         glfwPollEvents();
     }
 
