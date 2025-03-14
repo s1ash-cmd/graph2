@@ -1,6 +1,31 @@
 #include <GLFW/glfw3.h>
 #include <Windows.h>
 #include <math.h>
+#include <vector>
+#include <iostream>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
+void SaveImage(const char* filepath, GLFWwindow* w) {
+    int width, height;
+
+    glfwGetFramebufferSize(w, &width, &height);
+    GLsizei nrChannels = 3;
+    GLsizei stride = nrChannels * width;
+    stride += (stride % 4) ? (4 - stride % 4) : 0;
+    GLsizei bufferSize = stride * height;
+    std::vector<char> buffer(bufferSize);
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glReadBuffer(GL_FRONT);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+    stbi_flip_vertically_on_write(true);
+    stbi_write_png(filepath, width, height, nrChannels, buffer.data(), stride);
+}
+
 
 float vert[] = { 1, 1, 0, 1, -1, 0, -1, -1, 0, -1, 1, 0 };
 float xAlfa = 1;
@@ -42,7 +67,6 @@ float verc_trap[] = {
     -3.0, 3.0, -5.0
 };
 
-
 GLuint trap_bottom[] = {0, 1, 2, 3};
 GLuint trap_top[] = {4, 5, 6, 7};
 GLuint trap_front[] = {0, 1, 5, 4};
@@ -68,6 +92,23 @@ void DrawСube() {
     glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, ahead0);
     glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, right0);
     glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, left0);
+}
+
+void DrawWindows()
+{
+    glPushMatrix();
+    glColor4f(1, 0.45, 0.21, 1);
+    glScalef(0.04, 0.01, 0.06);
+    glTranslatef(0, 1.4, 4);
+    DrawСube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor4f(0.13, 0.73, 0.99, 0.5);
+    glScalef(0.03, 0.01, 0.05);
+    glTranslatef(0, 0, 5.6);
+    DrawСube();
+    glPopMatrix();
 }
 
 void drawLightSource(float x, float y, float z) {
@@ -122,7 +163,9 @@ void show_world() {
     for (int i = -20; i < 20; i++) {
         for (int j = -20; j < 20; j++) {
             glPushMatrix();
-            glColor3f(0.16, 0.08, 0);
+            if ((i + j) % 2 == 0) glColor3f(0.09, 0.09, 0.09);
+            else glColor3f(0.2, 0.2, 0.2);
+
             glTranslatef(i * 2, j * 2, 0);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
             glPopMatrix();
@@ -153,7 +196,7 @@ void show_world() {
     glPopMatrix();
 
     glPushMatrix();
-    glColor4f(1, 0.48, 0, 1);
+    glColor4f(1, 0.77, 0.51, 1);
     glScalef(0.5, 2.35, 0.58);
     glTranslatef(1.8, 6.8, 0);
     DrawСube();
@@ -161,9 +204,44 @@ void show_world() {
 
     glPushMatrix();
     glTranslatef(0.9, 10.0, 0.0);
+    glColor4f(1, 0.77, 0.51, 1);
     glScalef(1.6, 1.2, 1.55);
     glRotatef(90, 1, 0, 0);
     DrawTrapezoid();
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor4f(0.33, 0.12, 0, 1);
+    glScalef(0.7, 0.1, 0.03);
+    glTranslatef(1, 13+19.5, 0);
+    DrawСube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor4f(0.33, 0.12, 0, 1);
+    glScalef(0.7, 0.1, 0.06);
+    glTranslatef(1, 15.5+19.5, 0);
+    DrawСube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor4f(0.33, 0.12, 0, 1);
+    glScalef(0.7, 0.1, 0.09);
+    glTranslatef(1, 18+19.5, 0);
+    DrawСube();
+    glPopMatrix();
+
+    glPushMatrix();
+    for (int i = 0; i < 2; ++i)
+    {
+        for (int j = 0; j < 2; ++j)
+        {
+            glTranslatef(i * 0.1 - 0.05, 1.4, j * 0.1 + 4);
+            glTranslatef(i * 0.1 - 0.05, 0, j * 0.1 + 5.6);
+            DrawWindows();
+        }
+    }
+
     glPopMatrix();
 
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -201,7 +279,7 @@ int main(void) {
     GLFWwindow* window;
     if (!glfwInit()) return -1;
 
-    window = glfwCreateWindow(1000, 1000, "52 bratuha", NULL, NULL);
+    window = glfwCreateWindow(1200, 1200, "52 bratuha", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;
@@ -231,6 +309,8 @@ int main(void) {
         move_light();
         show_world();
         glPopMatrix();
+
+        //SaveImage("image.png", window);
 
         glfwSwapBuffers(window);
         Sleep(1);
