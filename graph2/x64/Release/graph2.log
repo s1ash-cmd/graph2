@@ -1,0 +1,20 @@
+﻿  graph2.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(130,9): warning C4005: APIENTRY: изменение макроопределения
+  (компиляция исходного файла "graph2.cpp")
+      C:\Users\s1ash\source\repos\glfw-3.4.bin.WIN64\include\GLFW\glfw3.h(123,11):
+      см. предыдущее определение "APIENTRY"
+  
+C:\Users\s1ash\source\repos\graph2\graph2\graph2.cpp(197,24): warning C4244: аргумент: преобразование "int" в "GLfloat", возможна потеря данных
+C:\Users\s1ash\source\repos\graph2\graph2\graph2.cpp(295,35): warning C4244: аргумент: преобразование "int" в "GLfloat", возможна потеря данных
+C:\Users\s1ash\source\repos\graph2\graph2\graph2.cpp(295,28): warning C4244: аргумент: преобразование "int" в "GLfloat", возможна потеря данных
+C:\Users\s1ash\source\repos\graph2\graph2\graph2.cpp(648,16): warning C4244: инициализация: преобразование "double" в "float", возможна потеря данных
+C:\Users\s1ash\source\repos\graph2\graph2\graph2.cpp(685,37): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\Users\s1ash\source\repos\graph2\graph2\graph2.cpp(685,31): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+  Создание кода
+  4 of 400 functions ( 1.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    8 functions had inline decision re-evaluated but remain unchanged
+  Создание кода завершено
+  graph2.vcxproj -> C:\Users\s1ash\source\repos\graph2\x64\Release\graph2.exe
+  C:\Users\s1ash\source\repos\graph2\opencv\build\x64\vc16\bin\opencv_world4110.dll
+  ╤ъюяшЁютрэю Їрщыют: 1.
